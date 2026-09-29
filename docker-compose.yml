@@ -1,0 +1,38 @@
+services:
+  api:
+    build: .
+    env_file: .env
+    environment:
+      CHROMA_HOST: chroma
+      CHROMA_PORT: 8000
+      PHOENIX_ENDPOINT: http://phoenix:6006/v1/traces
+      CHECKPOINT_DB: /srv/var/checkpoints.sqlite
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./data:/srv/data
+      - checkpoints:/srv/var
+    depends_on:
+      - chroma
+      - phoenix
+
+  chroma:
+    image: chromadb/chroma:1.5.9
+    ports:
+      - "8001:8000"
+    volumes:
+      - chroma:/data
+
+  phoenix:
+    image: arizephoenix/phoenix:version-20
+    ports:
+      - "6006:6006"
+    volumes:
+      - phoenix:/mnt/data
+    environment:
+      PHOENIX_WORKING_DIR: /mnt/data
+
+volumes:
+  checkpoints:
+  chroma:
+  phoenix:
